@@ -22,6 +22,9 @@ cd 绘制图片
 go mod download
 ```
 
+## 效果图
+![效果图](https://gitee.com/csn1024/image-combiner-go/raw/main/test_full_functionality.png)
+
 ## 使用示例
 
 ```go
