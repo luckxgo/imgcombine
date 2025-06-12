@@ -221,7 +221,7 @@ func TestFullFunctionality(t *testing.T) {
 	avatarImg.Width = 130
 	avatarImg.Height = 130
 	avatarImg.RoundCorner = 200
-	avatarImg.Alpha = 100
+	// avatarImg.Alpha = 100
 
 	// 添加水印
 	waterMarkImg, err := combiner.AddImageElement(waterMarkUrl, 630, 1200, Origin)

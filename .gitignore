@@ -1,2 +1,6 @@
 /image-combiner-master
-*.png
+test_text_features.png
+test_rectangle_features.png
+test_multiple_images.png
+test_advanced_output.png
+test_simple_output.png
