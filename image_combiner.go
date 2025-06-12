@@ -373,9 +373,9 @@ func (te *TextElement) Draw(g *gg.Context, canvasWidth int) {
 	g.SetColor(te.Color)
 	// 字体加载逻辑：尝试加载自定义字体，失败时降级使用系统字体
 	// 优先加载系统字体确保测量一致性
-	if err := g.LoadFontFace("/System/Library/Fonts/PingFang.ttc", te.FontSize); err != nil {
+	if err := g.LoadFontFace("Alibaba-PuHuiTi-Medium.ttf", te.FontSize); err != nil {
 		if err := g.LoadFontFace("/Library/Fonts/Arial.ttf", te.FontSize); err != nil {
-			if err := g.LoadFontFace("Alibaba-PuHuiTi-Medium.ttf", te.FontSize); err != nil {
+			if err := g.LoadFontFace("/System/Library/Fonts/PingFang.ttc", te.FontSize); err != nil {
 				g.LoadFontFace("", te.FontSize) // 使用gg默认字体作为最后的备选
 			}
 		}

@@ -16,7 +16,7 @@
 # 克隆仓库
 git clone https://gitee.com/csn1024/image-combiner-go
 cd 绘制图片
-
+注意一定要安装字体，否则中文字会出不来，Alibaba-PuHuiTi-Medium.ttf
 # 安装依赖
 go mod download
 ```
