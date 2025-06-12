@@ -14,7 +14,7 @@
 
 ```bash
 # 克隆仓库
-git clone <repository-url>
+git clone https://gitee.com/csn1024/image-combiner-go
 cd 绘制图片
 
 # 安装依赖
@@ -137,4 +137,4 @@ go test -coverprofile=coverage.out
 
 ## 许可证
 
-[MIT](LICENSE)
+[Apache License 2.0](LICENSE)
