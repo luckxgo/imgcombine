@@ -18,7 +18,7 @@ func TestSimpleCombine(t *testing.T) {
 	imgHeight := img.Bounds().Dy()
 
 	// 创建合成器，使用原图尺寸作为画布大小
-	combiner := NewImageCombiner(imgWidth, imgHeight, PNG)
+	combiner := NewImageCombiner(imgWidth, imgHeight)
 
 	// 添加背景矩形，大小与原图一致
 	bgRect := combiner.AddRectangleElement(0, 0, imgWidth, imgHeight)
@@ -46,13 +46,18 @@ func TestSimpleCombine(t *testing.T) {
 	if _, err := os.Stat("test_simple_output.png"); os.IsNotExist(err) {
 		t.Error("合成图片文件未生成")
 	}
+	bytes, err := combiner.ToBytes()
+	if err != nil {
+		t.Fatalf("转换图片为字节失败: %v", err)
+	}
+	fmt.Println("bytes length", len(bytes))
 }
 
 // TestAdvancedFeatures 测试高级功能（圆角、旋转、透明度等）
 // TestMultipleImages 测试多图片叠加功能
 func TestMultipleImages(t *testing.T) {
 	// 创建简化的测试场景，仅包含基础元素
-	combiner := NewImageCombiner(600, 400, PNG)
+	combiner := NewImageCombiner(600, 400)
 
 	// 添加纯色背景（应始终可见）
 	bg := combiner.AddRectangleElement(0, 0, 600, 400)
@@ -85,7 +90,7 @@ func TestMultipleImages(t *testing.T) {
 
 // TestTextFeatures 测试文本各种特性
 func TestTextFeatures(t *testing.T) {
-	combiner := NewImageCombiner(500, 300, PNG)
+	combiner := NewImageCombiner(500, 300)
 
 	// 添加背景
 	bg := combiner.AddRectangleElement(0, 0, 500, 300)
@@ -112,7 +117,7 @@ func TestTextFeatures(t *testing.T) {
 
 // TestRectangleFeatures 测试矩形各种特性
 func TestRectangleFeatures(t *testing.T) {
-	combiner := NewImageCombiner(500, 400, PNG)
+	combiner := NewImageCombiner(500, 400)
 
 	// 添加背景
 	bg := combiner.AddRectangleElement(0, 0, 500, 400)
@@ -140,7 +145,7 @@ func TestRectangleFeatures(t *testing.T) {
 // TestAdvancedFeatures 测试高级功能（圆角、旋转、透明度等）
 func TestAdvancedFeatures(t *testing.T) {
 	// 使用固定画布尺寸以便测试元素可见性
-	combiner := NewImageCombiner(400, 400, PNG)
+	combiner := NewImageCombiner(400, 400)
 
 	// 添加纯色背景
 	bgRect := combiner.AddRectangleElement(0, 0, 400, 400)
@@ -184,7 +189,7 @@ func TestFullFunctionality(t *testing.T) {
 	}
 	bgWidth := bgImg.Bounds().Dx()
 	bgHeight := bgImg.Bounds().Dy()
-	combiner := NewImageCombiner(bgWidth, bgHeight, PNG)
+	combiner := NewImageCombiner(bgWidth, bgHeight)
 
 	// 添加商品图
 	bg, err := combiner.AddImageElement(bgImageUrl, 0, 0, Origin)

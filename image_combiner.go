@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"net/http"
 	"os"
@@ -91,22 +94,25 @@ type RectangleElement struct {
 
 // ImageCombiner 图片合成器
 type ImageCombiner struct {
-	canvasWidth  int
-	canvasHeight int
-	outputFormat OutputFormat
-	quality      float64
-	roundCorner  int
-	elements     []CombineElement
+	width, height int
+	context       *gg.Context
+	elements      []CombineElement
+	outputFormat  OutputFormat
+	quality       float64
 }
 
 // NewImageCombiner 创建新的图片合成器
-func NewImageCombiner(canvasWidth, canvasHeight int, outputFormat OutputFormat) *ImageCombiner {
+func NewImageCombiner(width, height int) *ImageCombiner {
+	ctx := gg.NewContext(width, height)
+	ctx.SetRGB(1, 1, 1)
+	ctx.Clear()
+
 	return &ImageCombiner{
-		canvasWidth:  canvasWidth,
-		canvasHeight: canvasHeight,
-		outputFormat: outputFormat,
-		quality:      1.0,
-		elements:     make([]CombineElement, 0),
+		width:       width,
+		height:      height,
+		context:     ctx,
+		outputFormat: PNG,
+		quality:     1.0,
 	}
 }
 
@@ -164,12 +170,12 @@ func (ic *ImageCombiner) AddRectangleElement(x, y, width, height int) *Rectangle
 
 // Combine 执行图片合成
 func (ic *ImageCombiner) Combine() (image.Image, error) {
-	ctx := gg.NewContext(ic.canvasWidth, ic.canvasHeight)
+	ctx := gg.NewContext(ic.width, ic.height)
 	ctx.SetColor(color.White)
 	ctx.Clear()
 
 	for _, element := range ic.elements {
-		element.Draw(ctx, ic.canvasWidth)
+		element.Draw(ctx, ic.width)
 	}
 
 	return ctx.Image(), nil
@@ -190,6 +196,30 @@ func (ic *ImageCombiner) Save(filePath string) error {
 	default:
 		return fmt.Errorf("unsupported output format: %s", ic.outputFormat)
 	}
+}
+
+// ToBytes 将合成图片编码为[]byte返回
+func (ic *ImageCombiner) ToBytes() ([]byte, error) {
+	img, err := ic.Combine()
+	if err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+	switch ic.outputFormat {
+	case JPG:
+		options := jpeg.Options{Quality: int(ic.quality * 100)}
+		if err := jpeg.Encode(&buf, img, &options); err != nil {
+			return nil, err
+		}
+	case PNG:
+		if err := png.Encode(&buf, img); err != nil {
+			return nil, err
+		}
+	default:
+		return nil, fmt.Errorf("unsupported output format: %s", ic.outputFormat)
+	}
+	return buf.Bytes(), nil
 }
 
 // loadImage 从路径加载图片
