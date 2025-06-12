@@ -190,6 +190,8 @@ func TestFullFunctionality(t *testing.T) {
 	bgWidth := bgImg.Bounds().Dx()
 	bgHeight := bgImg.Bounds().Dy()
 	combiner := NewImageCombiner(bgWidth, bgHeight)
+	// 加载字体
+	// combiner.FontPaths = []string{"/Library/Fonts/Arial Unicode.ttf"}
 
 	// 添加商品图
 	bg, err := combiner.AddImageElement(bgImageUrl, 0, 0, Origin)

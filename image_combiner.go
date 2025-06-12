@@ -81,6 +81,7 @@ type TextElement struct {
 	MaxLineCount  int         // 最大行数，超出部分将被截断
 	LineHeight    float64     // 行高，默认1.5倍字体大小
 	StrikeThrough bool        // 是否显示删除线
+	FontPaths     []string    // 自定义字体路径列表
 }
 
 // RectangleElement 矩形元素
@@ -99,6 +100,7 @@ type ImageCombiner struct {
 	elements      []CombineElement
 	outputFormat  OutputFormat
 	quality       float64
+	FontPaths     []string // 自定义字体路径列表
 }
 
 // NewImageCombiner 创建新的图片合成器
@@ -108,11 +110,11 @@ func NewImageCombiner(width, height int) *ImageCombiner {
 	ctx.Clear()
 
 	return &ImageCombiner{
-		width:       width,
-		height:      height,
-		context:     ctx,
+		width:        width,
+		height:       height,
+		context:      ctx,
 		outputFormat: PNG,
-		quality:     1.0,
+		quality:      1.0,
 	}
 }
 
@@ -143,11 +145,12 @@ func (ic *ImageCombiner) AddImageElement(imagePath string, x, y int, zoomMode Zo
 // AddTextElement 添加文本元素
 func (ic *ImageCombiner) AddTextElement(text string, fontSize float64, x, y int) *TextElement {
 	element := &TextElement{
-		Text:     text,
-		FontSize: fontSize,
-		X:        x,
-		Y:        y,
-		Color:    color.Black,
+		Text:      text,
+		FontSize:  fontSize,
+		X:         x,
+		Y:         y,
+		Color:     color.Black,
+		FontPaths: ic.FontPaths,
 	}
 
 	ic.AddElement(element)
@@ -331,13 +334,26 @@ func (te *TextElement) GetWidth() float64 {
 
 	// 加载字体，与Draw方法保持一致
 
-	// 优先加载系统字体确保测量一致性
-	if err := g.LoadFontFace("Alibaba-PuHuiTi-Medium.ttf", te.FontSize); err != nil {
-		if err := g.LoadFontFace("/Library/Fonts/Arial.ttf", te.FontSize); err != nil {
-			if err := g.LoadFontFace("/System/Library/Fonts/PingFang.ttc", te.FontSize); err != nil {
-				g.LoadFontFace("", te.FontSize)
-			}
+	// 默认字体路径优先级定义
+	var defaultFontPaths = []string{
+		"Alibaba-PuHuiTi-Medium.ttf",
+		"/Library/Fonts/Arial.ttf",
+		"/System/Library/Fonts/PingFang.ttc",
+	}
+
+	// 优化字体加载逻辑：使用预定义的字体路径
+	fontPaths := append(te.FontPaths, defaultFontPaths...)
+
+	var loadErr error
+	for _, path := range fontPaths {
+		if loadErr = g.LoadFontFace(path, te.FontSize); loadErr == nil {
+			break // 成功加载字体，退出循环
 		}
+	}
+
+	// 如果所有字体都加载失败，使用默认字体
+	if loadErr != nil {
+		g.LoadFontFace("", te.FontSize)
 	}
 
 	// 初始化行集合
@@ -402,13 +418,21 @@ func (te *TextElement) Draw(g *gg.Context, canvasWidth int) {
 
 	g.SetColor(te.Color)
 	// 字体加载逻辑：尝试加载自定义字体，失败时降级使用系统字体
-	// 优先加载系统字体确保测量一致性
-	if err := g.LoadFontFace("Alibaba-PuHuiTi-Medium.ttf", te.FontSize); err != nil {
-		if err := g.LoadFontFace("/Library/Fonts/Arial.ttf", te.FontSize); err != nil {
-			if err := g.LoadFontFace("/System/Library/Fonts/PingFang.ttc", te.FontSize); err != nil {
-				g.LoadFontFace("", te.FontSize) // 使用gg默认字体作为最后的备选
-			}
+	customFonts := te.FontPaths
+	if customFonts == nil {
+		customFonts = []string{}
+	}
+	systemFonts := []string{"Alibaba-PuHuiTi-Medium.ttf", "/Library/Fonts/Arial.ttf", "/System/Library/Fonts/PingFang.ttc"}
+	fonts := append(customFonts, systemFonts...)
+	fontLoaded := false
+	for _, fontPath := range fonts {
+		if err := g.LoadFontFace(fontPath, te.FontSize); err == nil {
+			fontLoaded = true
+			break
 		}
+	}
+	if !fontLoaded {
+		g.LoadFontFace("", te.FontSize) // 使用gg默认字体作为最后的备选
 	}
 
 	// 处理旋转文本
