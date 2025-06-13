@@ -10,7 +10,7 @@ import (
 // TestSimpleCombine 测试简单图片合成功能
 func TestSimpleCombine(t *testing.T) {
 	// 先加载图片获取原始尺寸
-	img, err := loadImage("https://img.thebeastshop.com/image/20201130115835493501.png")
+	img, err := LoadImage("https://img.thebeastshop.com/image/20201130115835493501.png")
 	if err != nil {
 		t.Fatalf("加载图片失败: %v", err)
 	}
@@ -183,7 +183,7 @@ func TestFullFunctionality(t *testing.T) {
 
 	// 创建合成器
 	// 注意：Go版本需要先加载背景图获取尺寸
-	bgImg, err := loadImage(bgImageUrl)
+	bgImg, err := LoadImage(bgImageUrl)
 	if err != nil {
 		t.Fatalf("加载背景图失败: %v", err)
 	}

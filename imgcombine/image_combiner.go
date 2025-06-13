@@ -125,7 +125,7 @@ func (ic *ImageCombiner) AddElement(element CombineElement) {
 
 // AddImageElement 添加图片元素
 func (ic *ImageCombiner) AddImageElement(imagePath string, x, y int, zoomMode ZoomMode) (*ImageElement, error) {
-	img, err := loadImage(imagePath)
+	img, err := LoadImage(imagePath)
 	if err != nil {
 		return nil, err
 	}
@@ -226,7 +226,7 @@ func (ic *ImageCombiner) ToBytes() ([]byte, error) {
 }
 
 // loadImage 从路径加载图片
-func loadImage(path string) (image.Image, error) {
+func LoadImage(path string) (image.Image, error) {
 	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
 		resp, err := http.Get(path)
 		if err != nil {
