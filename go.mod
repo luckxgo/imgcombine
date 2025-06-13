@@ -1,4 +1,4 @@
-module image-combiner
+module github.com/luckxgo/imgcombine
 
 go 1.24.3
 
