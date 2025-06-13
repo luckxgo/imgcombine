@@ -9,12 +9,14 @@
 - 矩形元素可自定义颜色和边框
 - 多种缩放模式适应不同布局需求
 - 完整的单元测试覆盖核心功能
+  
+V1.0.2 支持JPG图片压缩
 
 ## 安装方法
 
 ```bash
 # 克隆仓库
-git clone https://gitee.com/csn1024/image-combiner-go
+git clone https://github.com/luckxgo/imgcombine
 cd 绘制图片
 注意一定要安装字体，否则中文字会出不来，Alibaba-PuHuiTi-Medium.ttf
 仓库里自带了这个字体，直接clone 即可
@@ -49,6 +51,10 @@ func TestFullFunctionality(t *testing.T) {
 	bgWidth := bgImg.Bounds().Dx()
 	bgHeight := bgImg.Bounds().Dy()
 	combiner := NewImageCombiner(bgWidth, bgHeight, PNG)
+		// combiner.OutputFormat = JPG
+	combiner.SetQuality(50)
+	// 加载字体
+	combiner.FontPaths = []string{"/Library/Fonts/Arial Unicode.ttf"}
 
 	// 添加商品图
 	bg, err := combiner.AddImageElement(bgImageUrl, 0, 0, Origin)

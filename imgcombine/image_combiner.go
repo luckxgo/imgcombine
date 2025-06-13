@@ -25,14 +25,15 @@ const (
 	PNG OutputFormat = "png"
 )
 
-// ZoomMode 缩放模式枚举
+// ZoomMode 图片缩放模式枚举
+// 定义了图片在合成时的不同缩放行为
 type ZoomMode string
 
 const (
-	Origin      ZoomMode = "origin"
-	Width       ZoomMode = "width"
-	Height      ZoomMode = "height"
-	WidthHeight ZoomMode = "width_height"
+	Origin      ZoomMode = "origin"      // 原始尺寸：不进行缩放，使用图片原始尺寸
+	Width       ZoomMode = "width"       // 按宽度缩放：保持原始宽高比，按指定宽度缩放
+	Height      ZoomMode = "height"      // 按高度缩放：保持原始宽高比，按指定高度缩放
+	WidthHeight ZoomMode = "width_height" // 按宽高缩放：强制缩放到指定的宽度和高度，可能改变宽高比
 )
 
 // CombineElement 组合元素接口
@@ -84,23 +85,25 @@ type TextElement struct {
 	FontPaths     []string    // 自定义字体路径列表
 }
 
-// RectangleElement 矩形元素
+// RectangleElement 矩形元素，用于在图片上绘制矩形
+// 支持设置位置、尺寸、颜色和圆角半径
 type RectangleElement struct {
-	X, Y        int
-	Width       int
-	Height      int
-	Color       color.Color
-	RoundCorner int
+	X, Y        int         // 矩形左上角坐标
+	Width       int         // 矩形宽度
+	Height      int         // 矩形高度
+	Color       color.Color // 矩形填充颜色
+	RoundCorner int         // 矩形圆角半径，0表示直角矩形
 }
 
-// ImageCombiner 图片合成器
+// ImageCombiner 图片合成器，用于管理和渲染多个图片元素
+// 支持添加图片、文本、矩形等元素，并将它们合成为单一图片
 type ImageCombiner struct {
-	width, height int
-	context       *gg.Context
-	elements      []CombineElement
-	outputFormat  OutputFormat
-	quality       float64
-	FontPaths     []string // 自定义字体路径列表
+	width, height int          // 画布宽度和高度（像素）
+	context       *gg.Context  // 底层绘图上下文
+	elements      []CombineElement // 待合成的元素集合
+	OutputFormat  OutputFormat // 输出图片格式
+	quality       float64      // 输出图片质量（0.0-1.0），仅对JPG格式有效
+	FontPaths     []string     // 自定义字体路径列表
 }
 
 // NewImageCombiner 创建新的图片合成器
@@ -113,9 +116,18 @@ func NewImageCombiner(width, height int) *ImageCombiner {
 		width:        width,
 		height:       height,
 		context:      ctx,
-		outputFormat: PNG,
+		OutputFormat: JPG,
 		quality:      1.0,
 	}
+}
+
+// SetQuality 设置输出图片质量（1-100），仅对JPG格式有效
+func (ic *ImageCombiner) SetQuality(quality int) error {
+	if quality < 1 || quality > 100 {
+		return fmt.Errorf("quality must be between 1 and 100")
+	}
+	ic.quality = float64(quality) / 100.0
+	return nil
 }
 
 // AddElement 添加元素到合成器
@@ -191,13 +203,13 @@ func (ic *ImageCombiner) Save(filePath string) error {
 		return err
 	}
 
-	switch ic.outputFormat {
+	switch ic.OutputFormat {
 	case JPG:
 		return gg.SaveJPG(filePath, img, int(ic.quality*100))
 	case PNG:
 		return gg.SavePNG(filePath, img)
 	default:
-		return fmt.Errorf("unsupported output format: %s", ic.outputFormat)
+		return fmt.Errorf("unsupported output format: %s", ic.OutputFormat)
 	}
 }
 
@@ -209,7 +221,7 @@ func (ic *ImageCombiner) ToBytes() ([]byte, error) {
 	}
 
 	var buf bytes.Buffer
-	switch ic.outputFormat {
+	switch ic.OutputFormat {
 	case JPG:
 		options := jpeg.Options{Quality: int(ic.quality * 100)}
 		if err := jpeg.Encode(&buf, img, &options); err != nil {
@@ -220,7 +232,7 @@ func (ic *ImageCombiner) ToBytes() ([]byte, error) {
 			return nil, err
 		}
 	default:
-		return nil, fmt.Errorf("unsupported output format: %s", ic.outputFormat)
+		return nil, fmt.Errorf("unsupported output format: %s", ic.OutputFormat)
 	}
 	return buf.Bytes(), nil
 }

@@ -190,9 +190,11 @@ func TestFullFunctionality(t *testing.T) {
 	bgWidth := bgImg.Bounds().Dx()
 	bgHeight := bgImg.Bounds().Dy()
 	combiner := NewImageCombiner(bgWidth, bgHeight)
+	// combiner.OutputFormat = JPG
+	combiner.SetQuality(50)
 	// 加载字体
 	// combiner.FontPaths = []string{"/Library/Fonts/Arial Unicode.ttf"}
-
+	combiner.FontPaths = []string{"../Alibaba-PuHuiTi-Medium.ttf"}
 	// 添加商品图
 	bg, err := combiner.AddImageElement(bgImageUrl, 0, 0, Origin)
 	if err != nil {

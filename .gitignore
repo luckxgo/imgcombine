@@ -1,7 +1,8 @@
 /image-combiner-master
-test_text_features.png
-test_rectangle_features.png
-test_multiple_images.png
-test_advanced_output.png
-test_simple_output.png
+/imgcombine/test_text_features.png
+/imgcombine/test_rectangle_features.png
+/imgcombine/test_multiple_images.png
+/imgcombine/test_advanced_output.png
+/imgcombine/test_simple_output.png
+/imgcombine/test_full_functionality.png
 .idea
