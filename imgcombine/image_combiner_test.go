@@ -262,13 +262,13 @@ func TestFullFunctionality(t *testing.T) {
 	priceText.Color = color.RGBA{255, 0, 0, 255}
 
 	// 执行合成并保存
-	err = combiner.Save("test_full_functionality.png")
+	err = combiner.Save("test_full_functionality.jpg")
 	if err != nil {
 		t.Fatalf("保存图片失败: %v", err)
 	}
 
 	// 验证文件是否创建
-	if _, err := os.Stat("test_full_functionality.png"); os.IsNotExist(err) {
+	if _, err := os.Stat("test_full_functionality.jpg"); os.IsNotExist(err) {
 		t.Error("完整功能测试输出文件未生成")
 	}
 }
